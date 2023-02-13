@@ -1,4 +1,4 @@
-# Projeto DropBox Clone
+# Projeto DropBox Clone - PROJETO E README EM CONSTRUÇÃO
 
 Projeto desenvolvido como exemplo do Curso Completo de JavaScript na Udemy.com.
 
@@ -13,3 +13,7 @@ npm start
 ```
 
 http://localhost:3000
+
+
+-- Video para criar e implementar firebase
+https://www.youtube.com/watch?v=xJ6tEOcOBhY
