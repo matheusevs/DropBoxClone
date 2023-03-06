@@ -140,7 +140,7 @@
                                                     fill-rule="evenodd"></path>
                                             </svg>
                                         </span>
-                                        <span>Avell</span>
+                                        <span id="nameFolder"></span>
                                     </nav>
                                 </span>
                             </span>
@@ -187,8 +187,8 @@
                             <button id="btn-send-file" type="button" class="btn btn-primary btn-block btn-sm">Enviar arquivos</button>
                             <input type="file" id="files" style="display:none;" multiple>
                             <button id="btn-new-folder" type="button" class="btn btn-link btn-block btn-sm btn-icon"><i class="ion-android-folder-open"></i>Nova Pasta</button>
-                            <button id="btn-rename" type="button" class="btn btn-link btn-block btn-sm btn-icon"><i class="ion-edit"></i>Renomear</button>
-                            <button id="btn-delete" type="button" class="btn btn-link btn-block btn-sm btn-icon"><i class="ion-trash-a"></i>Excluir</button>
+                            <button style="display: none;" id="btn-rename" type="button" class="btn btn-link btn-block btn-sm btn-icon"><i class="ion-edit"></i>Renomear</button>
+                            <button style="display: none;" id="btn-delete" type="button" class="btn btn-link btn-block btn-sm btn-icon"><i class="ion-trash-a"></i>Excluir</button>
                         </div>
                     </div>
                 </section>
@@ -208,7 +208,7 @@
                                 fill="#0070E0" fill-rule="nonzero"></path>
                         </svg>
                     </div>
-                    <p class="mc-snackbar-title">Enviando o arquivo <span class="filename">file.pdf</span> - <span class="timeleft">8 min</span> restantes</p>
+                    <p class="mc-snackbar-title"><span class="filename">file.pdf</span> - <span class="timeleft"></span> restantes</p>
                 </div>
                 <div class="mc-progress-bar-bg">
                     <div class="mc-progress-bar-fg" style="width: 0%;"></div>
