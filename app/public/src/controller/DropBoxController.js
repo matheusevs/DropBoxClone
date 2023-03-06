@@ -257,19 +257,30 @@ class DropBoxController {
 
             this.uploadTask(event.target.files).then(responses => {
 
-                responses.forEach(resp => {
+                if(responses.length > 0){
 
-                    this.getFirebaseRef().push().set({
-                        name: resp.name, 
-                        type: resp.contentType, 
-                        path: resp.customMetadata.downloadURL, 
-                        size: resp.size,
+                    responses.forEach(resp => {
+    
+                        this.getFirebaseRef().push().set({
+                            name: resp.name, 
+                            type: resp.contentType, 
+                            path: resp.customMetadata.downloadURL, 
+                            size: resp.size,
+                        });
+    
                     });
-
-                });
+                    
+                    toastr.success('Arquivo enviado com sucesso.');
+                    this.uploadComplete();
                 
-                toastr.success('Arquivo enviado com sucesso.');
-                this.uploadComplete();
+                } else {
+                
+                    this.modalShow(false);
+                    this.inputFilesEl.value = '';
+                    this.btnSendFileEl.disabled = false;
+
+                }
+
 
             }).catch(err => {
 
@@ -310,92 +321,66 @@ class DropBoxController {
 
     }
 
-    ajax(method = 'GET', url, formData = new FormData(), onprogress = function(){}, onloadstart = function(){}){
-
-        return new Promise((resolve, reject) => {
-
-            let ajax = new XMLHttpRequest();
-
-            ajax.open(method, url);
-
-            ajax.onload = event => {
-
-                try {
-
-                    resolve(JSON.parse(ajax.responseText));
-
-                } catch (e) {
-
-                    reject(e);
-
-                }
-
-            }
-
-            ajax.onerror = event => {
-
-                reject(event);
-
-            }
-
-            ajax.upload.onprogress = onprogress;
-            onloadstart();
-
-            ajax.send(formData);
-
-        });
-
-    }
-
     uploadTask(files){
 
         let promises = [];
 
         [...files].forEach(file => {
             
-            promises.push(new Promise((resolve, reject) => {
+            let fileExists = this.checkFileExists(file);
 
-                let fileRef = firebase.storage().ref(this.currentFolder.join('/')).child(file.name);
-                let task = fileRef.put(file);
+            if(fileExists){
 
-                task.on
-                (
-                    'state_changed', 
-                    snapshot => {
+                toastr.error('O arquivo já existe.');
+                
+            } else {
 
-                        this.uploadProgress({
-                            loaded: snapshot.bytesTransferred,
-                            total: snapshot.totalBytes
-                        }, file, files.length);
-                    
-                    },
-                    error => {
-                        console.error(error);
-                        reject(error);
-                    },
-                    () => {
-
-                        task.snapshot.ref.getDownloadURL().then(downloadURL => {
-
-                            task.snapshot.ref.updateMetadata({customMetadata: {downloadURL}}).then(metadata => {
-
-                                resolve(metadata);
-
-                            }).catch(err => {
-
-                                reject(err);
-
+                promises.push(new Promise((resolve, reject) => {
+    
+                    let fileRef = firebase.storage().ref(this.currentFolder.join('/')).child(file.name);
+                    let task = fileRef.put(file);
+    
+                    task.on
+                    (
+                        'state_changed', 
+                        snapshot => {
+    
+                            this.uploadProgress({
+                                loaded: snapshot.bytesTransferred,
+                                total: snapshot.totalBytes
+                            }, file, files.length);
+                        
+                        },
+                        error => {
+                            console.error(error);
+                            reject(error);
+                        },
+                        () => {
+    
+                            task.snapshot.ref.getDownloadURL().then(downloadURL => {
+    
+                                task.snapshot.ref.updateMetadata({customMetadata: {downloadURL}}).then(metadata => {
+    
+                                    resolve(metadata);
+    
+                                }).catch(err => {
+    
+                                    reject(err);
+    
+                                });
+    
                             });
+    
+                        }
+    
+                    );
+    
+                    this.startUploadTime = Date.now();
+    
+                }));
 
-                        });
-
-                    }
-
-                );
-
-                this.startUploadTime = Date.now();
-
-            }));
+            }
+            
 
         });
 
@@ -793,6 +778,30 @@ class DropBoxController {
             this.listFilesEl.dispatchEvent(this.onSelectionChange);
 
         });
+
+    }
+
+    checkFileExists(file){
+
+        let checkFileExists = false;
+
+        this.getFirebaseRef().on('value', snapshot => {
+
+            snapshot.forEach(snapshotItem => {
+
+                let data = snapshotItem.val();
+
+                if(data.name === file.name && data.size === file.size && data.type === file.type) {
+
+                    checkFileExists = true;
+                    
+                }
+                
+            });
+
+        });
+
+        return checkFileExists;
 
     }
 
